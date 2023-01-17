@@ -6,6 +6,7 @@ from sympy import (
     diff,
     Symbol,
     Poly,
+    Add,
 )
 
 
@@ -47,20 +48,38 @@ def get_jacobian_matrix(mapping, var_list):
 def _eval_at_val(expr, val=0):
     return expr.subs([(v, val) for v in expr.free_symbols]).expand()
 
+def _is_exceptional_divisor(expr):  
+    return (len(expr.atoms(Symbol)) == 1) and (len(Add.make_args(expr)) == 1)
+
+def find_any_nonexceptional_factor(expr): 
+    # might not be the entire strict transform, 
+    # e.g. x**2 * y * (1 + y) * (1 + z) would return (1 + y)
+    for t, m in factor_list(expr)[1]:
+        if not _is_exceptional_divisor(t):
+            return t
+    return None
 
 def is_normal_crossing(expr):
     factors = factor_list(expr.factor())[1]
     for t, m in factors:
-        # if term t is not an exceptional divisor
-        if len(t.atoms(Symbol)) != 1:
+        if not _is_exceptional_divisor(t):
             if Eq(_eval_at_val(t), 0):
                 return False
-        else:
-            deg_list = Poly(t).degree_list()
-            if len(deg_list) != 1:  # therefore not an exceptional divisor
-                if 0 not in deg_list:
-                    return False
     return True
+
+# def is_normal_crossing(expr):
+#     factors = factor_list(expr.factor())[1]
+#     for t, m in factors:B
+#         # if term t is not an exceptional divisor
+#         if len(t.atoms(Symbol)) != 1:
+#             if Eq(_eval_at_val(t), 0):
+#                 return False
+#         else:
+#             deg_list = Poly(t).degree_list()
+#             if len(deg_list) != 1:  # therefore not an exceptional divisor
+#                 if 0 not in deg_list:
+#                     return False
+#     return True
 
 
 def embedded_blowup(v_old, var_indices=None):

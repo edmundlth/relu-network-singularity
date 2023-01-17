@@ -4,7 +4,6 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-jupyter = "*"
 sympy = "*"
 numpy = "*"
 torch = "*"
@@ -12,6 +11,7 @@ pandas = "*"
 matplotlib = "*"
 networkx = "*"
 scipy = "*"
+jupyter = "*"
 
 [dev-packages]
 black = "*"
